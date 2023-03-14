@@ -283,8 +283,8 @@ def results():
     
     
     intent_name = req['queryResult']['intent']['displayName']
-    #whatsapp_mobile_number = req['originalDetectIntentRequest']['payload']['AiSensyMobileNumber'][3:]
-    whatsapp_mobile_number = "9600012183"
+    whatsapp_mobile_number = req['originalDetectIntentRequest']['payload']['AiSensyMobileNumber'][3:]
+    #whatsapp_mobile_number = "9600012183"
     whatsapp_customer_name = req['originalDetectIntentRequest']['payload']['AiSensyName']
         
     if intent_name=="Default Welcome Intent":
