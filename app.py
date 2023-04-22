@@ -2,6 +2,10 @@ from flask import Flask,request,make_response,jsonify
 import requests
 import json
 import re
+import datetime
+import pytz
+
+tz = pytz.timezone('Asia/Kolkata')
 
 
 app = Flask(__name__)
@@ -263,9 +267,11 @@ def check_registered_user(mobile_number):
     response = json.loads(r.text)['DATA'][0]['msg']
     try:
         user_name = json.loads(r.text)['DATA'][0]['name']
+        user_id = json.loads(r.text)['DATA'][0]['user_id']
     except:
         user_name = ''
-    return response,user_name
+        user_id = ''
+    return response,user_name,user_id
 
 def get_chapter_id_from_name(chapter_name):
     r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=jito_chapter_filter')
@@ -273,14 +279,48 @@ def get_chapter_id_from_name(chapter_name):
     for i in chapters_list['DATA'][0]['jito_chapter']:
         if i['name']==chapter_name:
             return i['id']
+        
+def send_aisensy_template_message(sender_mobile,sender_name,reciever_mobile,receiver_name,amount):
+    url = "https://backend.aisensy.com/campaign/t1/api"
 
-def search_keyword_with_chapter(keyword,chapter):
-    r = requests.get()
+    headers = {
+                "Content-Type": "application/json"}
+
+    data = {
+      "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MGYwNzEzOGNhMDUwNGE2ZTlmYzE1ZCIsIm5hbWUiOiJKQk4iLCJhcHBOYW1lIjoiQWlTZW5zeSIsImNsaWVudElkIjoiNjQwZjA3MTM4Y2EwNTA0YTZlOWZjMTU4IiwiYWN0aXZlUGxhbiI6IkJBU0lDX01PTlRITFkiLCJpYXQiOjE2Nzg3MDY0NTF9.qOV1YJOKZPe_spIblfzTeC1m9Rt0i8c5_fGxWuPyU30",
+      "campaignName": "Thank You Slip",
+      "destination": """+91"""+reciever_mobile,
+      "userName": "Customer",
+      "templateParams": [
+        str(receiver_name),
+        str(amount),
+        str(sender_name),
+      ]
+    }
+
+    resp = requests.post(url, headers=headers, json=data)
+    
+    return resp.text
+
+def send_thank_you_slip(sender_mobile,sender_name,sender_user_id,reciever_mobile,receiver_name,amount):
+    
+    date = datetime.datetime.now(tz).date().strftime("%d-%m-%Y")
+    r = requests.get("https://jitojbnapp.com/WebServices/WS.php?type=thank_you_note_bot&sender_user_id="+str(sender_user_id)+"&reference_contact="+str(reciever_mobile)+"&business_amount="+str(amount)+"&work_date="+str(date))
+    response = json.loads(r.text)['DATA'][0]['msg']
+    
+    if response == "THANK YOU NOTE RECORD SUCCESSFULLY":
+        aisensy_response = send_aisensy_template_message(sender_mobile,sender_name,reciever_mobile,receiver_name,amount)
+        return aisensy_response
+    
+    else:
+        return 'System error'
+        
+        
     
         
 def results():
     req = request.get_json(force=True)
-    
+    #print(req)
     
     intent_name = req['queryResult']['intent']['displayName']
     whatsapp_mobile_number = req['originalDetectIntentRequest']['payload']['AiSensyMobileNumber'][3:]
@@ -288,7 +328,7 @@ def results():
     whatsapp_customer_name = req['originalDetectIntentRequest']['payload']['AiSensyName']
         
     if intent_name=="Default Welcome Intent":
-        response,user_name = check_registered_user(whatsapp_mobile_number)
+        response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         if response == 'User is registered in our database':
             text = "Hi *"+str(user_name)+"!*\n\nWelcome to JITO Chatbot. Please select one of the below buttons to continue."
             return return_text_and_suggestion_chip(text,['Search Vendors','Send Thank You Slip'])       
@@ -322,7 +362,7 @@ def results():
             return return_text_and_suggestion_chip(text,['Main Menu'])
         
     if intent_name=="Direct Search Query":
-        response,user_name = check_registered_user(whatsapp_mobile_number)
+        response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         if response == 'User is registered in our database':
 
 
@@ -365,9 +405,35 @@ def results():
                   }
                 }
         
+    if intent_name == "Thank you Slip":
         
-        
+        response,sender_user_name,sender_user_id = check_registered_user(whatsapp_mobile_number)
+        if response == 'User is registered in our database':
             
+            sender_mobile = whatsapp_mobile_number
+
+            reciever_mobile = req['queryResult']['parameters']['send_to'][-10:]
+
+            reciever_response,reciever_user_name,reciever_user_id = check_registered_user(reciever_mobile)
+
+            amount = req['queryResult']['parameters']['transaction_amount']
+
+            response = send_thank_you_slip(sender_mobile,sender_user_name,sender_user_id,reciever_mobile,reciever_user_name,amount)
+
+            if response == "Success.":
+                text = "Thank you for generating the Thank you slip. Hope to see you back with JITO soon!"
+                return return_text_and_suggestion_chip(text,['Main Menu'])
+            else:
+                text = "Sorry! A system error occured. Please try again in sometime!"
+                return return_text_and_suggestion_chip(text,['Main Menu'])
+    
+        else:
+            return {
+                  "followupEventInput": {
+                    "name": "Not_JITO_Member",
+                    "languageCode": "en-US"
+                  }
+                } 
         
 @app.route('/api/', methods=['GET', 'POST'])
 def webhook():
