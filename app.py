@@ -355,11 +355,11 @@ def results():
                 answer = answer+"*Name:* "+member_details['full_name']+"\n*Mobile:* "+str(member_details['mobile'])+"\n*Company:* "+member_details['company_name']+'\n*Address:* '+member_details['company_address']+'\n\n'
 
 
-            return return_text_and_suggestion_chip(answer,['Main Menu'])
+            return return_text_and_suggestion_chip(answer,['Search Vendors','Main Menu'])
         
         else:
             text = "Sorry! We don't have any vendors under this category right now.\n\nYou can try searching something else."
-            return return_text_and_suggestion_chip(text,['Main Menu'])
+            return return_text_and_suggestion_chip(text,['Search Vendors','Main Menu'])
         
     if intent_name=="Direct Search Query":
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
@@ -377,11 +377,11 @@ def results():
                     for member_details in response['DATA'][0]['member']:
                         answer = answer+"*Name:* "+member_details['full_name']+"\n*Mobile:* "+str(member_details['mobile'])+"\n*Company:* "+member_details['company_name']+'\n*Address:* '+member_details['company_address']+'\n\n'
 
-                    return return_text_and_suggestion_chip(answer,['Main Menu'])
+                    return return_text_and_suggestion_chip(answer,['Search Vendors','Main Menu'])
 
                 else:
                     text = "Sorry! We don't have any vendors under this category right now.\n\nYou can try searching something else."
-                    return return_text_and_suggestion_chip(text,['Main Menu'])
+                    return return_text_and_suggestion_chip(text,['Search Vendors','Main Menu'])
 
             else:
                 r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list&filter_keyword='+keyword)
@@ -391,11 +391,11 @@ def results():
                     for member_details in response['DATA'][0]['member']:
                         answer = answer+"*Name:* "+member_details['full_name']+"\n*Mobile:* "+str(member_details['mobile'])+"\n*Company:* "+member_details['company_name']+'\n*Address:* '+member_details['company_address']+'\n\n'
 
-                    return return_text_and_suggestion_chip(answer,['Main Menu'])
+                    return return_text_and_suggestion_chip(answer,['Search Vendors','Main Menu'])
 
                 else:
                     text = "Sorry! We don't have any vendors under this category right now.\n\nYou can try searching something else."
-                    return return_text_and_suggestion_chip(text,['Main Menu'])
+                    return return_text_and_suggestion_chip(text,['Search Vendors','Main Menu'])
 
         else:
             return {
