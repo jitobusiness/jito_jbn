@@ -377,7 +377,7 @@ def results():
                     for member_details in response['DATA'][0]['member']:
                         answer = answer+"*Name:* "+member_details['full_name']+"\n*Mobile:* "+str(member_details['mobile'])+"\n*Company:* "+member_details['company_name']+'\n*Address:* '+member_details['company_address']+'\n\n'
 
-                    return return_text_and_suggestion_chip(text,['Main Menu'])
+                    return return_text_and_suggestion_chip(answer,['Main Menu'])
 
                 else:
                     text = "Sorry! We don't have any vendors under this category right now.\n\nYou can try searching something else."
