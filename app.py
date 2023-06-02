@@ -347,7 +347,7 @@ def results():
         
         chapter_id = get_chapter_id_from_name(chapter_name)
         
-        r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list&filter_keyword='+keyword+'&filter_chapter_id='+str(chapter_id))
+        r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list_bot&filter_keyword='+keyword+'&filter_jito_chapter='+str(chapter_id))
         response = json.loads(r.text)
         if response['DATA'][0]['msg']=='Members List':
             answer = 'Here are the details you searched for:\n\n'
@@ -370,7 +370,7 @@ def results():
             chapter_name = req['queryResult']['parameters']['chapter_name']
             if len(chapter_name)>1:
                 chapter_id = get_chapter_id_from_name(chapter_name)
-                r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list&filter_keyword='+keyword+'&filter_chapter_id='+str(chapter_id))
+                r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list_bot&filter_keyword='+keyword+'&filter_jito_chapter='+str(chapter_id))
                 response = json.loads(r.text)
                 if response['DATA'][0]['msg']=='Members List':
                     answer = 'Here are the details you searched for:\n\n'
