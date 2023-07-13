@@ -8,6 +8,12 @@ import pytz
 tz = pytz.timezone('Asia/Kolkata')
 
 
+r = requests.get("https://jitojbnapp.com/WebServices/WS.php?type=all_india_jbn_chapter_list")
+data = json.loads(r.text)['DATA'][0]['chapter_list']
+city = []
+for i in range(len(data)):
+    city.append(data[i]['chapter_name'].lower().strip())
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -340,10 +346,19 @@ def results():
                   }
                 }
         
-    if intent_name=="Search Vendors":
-        
+    if intent_name=="Search Vendors" or intent_name == "Incorrect City Entered":
+
         keyword = req['queryResult']['parameters']['keyword']
         chapter_name = req['queryResult']['parameters']['chapter_name']
+        
+        if chapter_name.lower().strip() not in city:
+            return {
+                  "followupEventInput": {
+                    "name": "incorrect_city_entered",
+                    "languageCode": "en-US"
+                  }
+                }
+        
         
         chapter_id = get_chapter_id_from_name(chapter_name)
         
@@ -368,6 +383,14 @@ def results():
 
             keyword = req['queryResult']['parameters']['keyword']
             chapter_name = req['queryResult']['parameters']['chapter_name']
+            if chapter_name.lower().strip() not in city:
+                return {
+                      "followupEventInput": {
+                        "name": "incorrect_city_entered",
+                        "languageCode": "en-US"
+                      }
+                    }
+            
             if len(chapter_name)>1:
                 chapter_id = get_chapter_id_from_name(chapter_name)
                 r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list_bot&filter_keyword='+keyword+'&filter_jito_chapter='+str(chapter_id))
@@ -439,7 +462,6 @@ def results():
 def webhook():
     # return response
     return make_response(jsonify(results()))
-
 
 if __name__ == '__main__':
     app.run()
