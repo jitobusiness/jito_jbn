@@ -373,7 +373,7 @@ def results():
             return return_text_and_suggestion_chip(answer,['Search Vendors','Main Menu'])
         
         else:
-            text = "Sorry! We don't have any vendors under this category right now.\n\nYou can try searching something else."
+            text = "Sorry, but we couldn't find any results that match your search. Please verify your keyword and try again."
             return return_text_and_suggestion_chip(text,['Search Vendors','Main Menu'])
         
     if intent_name=="Direct Search Query":
@@ -403,7 +403,7 @@ def results():
                     return return_text_and_suggestion_chip(answer,['Search Vendors','Main Menu'])
 
                 else:
-                    text = "Sorry! We don't have any vendors under this category right now.\n\nYou can try searching something else."
+                    text = "Sorry, but we couldn't find any results that match your search. Please verify your keyword and try again."
                     return return_text_and_suggestion_chip(text,['Search Vendors','Main Menu'])
 
             else:
@@ -417,7 +417,7 @@ def results():
                     return return_text_and_suggestion_chip(answer,['Search Vendors','Main Menu'])
 
                 else:
-                    text = "Sorry! We don't have any vendors under this category right now.\n\nYou can try searching something else."
+                    text = "Sorry, but we couldn't find any results that match your search. Please verify your keyword and try again."
                     return return_text_and_suggestion_chip(text,['Search Vendors','Main Menu'])
 
         else:
@@ -447,7 +447,7 @@ def results():
                 text = "Thank you for generating the Thank you slip. Hope to see you back with JITO soon!"
                 return return_text_and_suggestion_chip(text,['Main Menu'])
             else:
-                text = "Sorry! A system error occured. Please try again in sometime!"
+                text = "We apologize for the inconvenience. It appears that there was a timeout due to an error on our end. Please retry your request. If the issue persists, please contact our support team for further assistance.\nThank you for your understanding."
                 return return_text_and_suggestion_chip(text,['Main Menu'])
     
         else:
