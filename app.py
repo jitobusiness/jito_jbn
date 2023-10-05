@@ -364,7 +364,7 @@ def results():
         keyword = keyword.replace(" ","%20")
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         
-        r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list_bot&filter_keyword='+keyword+'&filter_jito_chapter='+str(chapter_id))+'&user_id='+str(user_id)
+        r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list_bot&filter_keyword='+keyword+'&filter_jito_chapter='+str(chapter_id)+'&user_id='+str(user_id))
         response = json.loads(r.text)
         if response['DATA'][0]['msg']=='Members List':
             answer = 'Here are the details you searched for:\n\n'
@@ -395,7 +395,7 @@ def results():
             
             if len(chapter_name)>1:
                 chapter_id = get_chapter_id_from_name(chapter_name)
-                r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list_bot&filter_keyword='+keyword+'&filter_jito_chapter='+str(chapter_id))
+                r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list_bot&filter_keyword='+keyword+'&filter_jito_chapter='+str(chapter_id)+'&user_id='+str(user_id))
                 response = json.loads(r.text)
                 if response['DATA'][0]['msg']=='Members List':
                     answer = 'Here are the details you searched for:\n\n'
@@ -409,7 +409,7 @@ def results():
                     return return_text_and_suggestion_chip(text,['Search Vendors','Main Menu'])
 
             else:
-                r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list&filter_keyword='+keyword)
+                r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_list&filter_keyword='+keyword+'&user_id='+str(user_id))
                 response = json.loads(r.text)
                 if response['DATA'][0]['msg']=='Members List':
                     answer = 'Here are the details you searched for:\n\n'
