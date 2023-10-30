@@ -336,7 +336,7 @@ def results():
     if intent_name=="Default Welcome Intent":
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         if response == 'User is registered in our database':
-            text = "Welcome to JBN, the Automated Business Connector for economic empowerment. Please choose from the following options or simply type your inquiry:\n1. Your Ask\n2. Thank You Slip\n3. About JBN\n4. Setu Settings\n5. Help"
+            text = "Welcome to JBN, the Automated Business Connector for economic empowerment. Please choose from the following options or simply type your inquiry:\n1. Your Ask\n2. Thank You Slip\n3. About JBN\n4. Setu Settings\n5. Sell Enquiry\n6. Help"
             return return_text_and_suggestion_chip(text,['Main Menu'])
         else:
             return {
