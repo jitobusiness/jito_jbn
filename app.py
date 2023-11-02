@@ -283,15 +283,15 @@ def get_chapter_id_from_name(chapter_name):
     r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=jito_chapter_filter')
     chapters_list = json.loads(r.text)
     for i in chapters_list['DATA'][0]['jito_chapter']:
-        if i['name']==chapter_name:
+        if chapter_name.lower() in i['name'].lower():
             return i['id']
         
 
-def get_business_id_from_name(chapter_name):
+def get_business_id_from_name(business_name):
     r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=business_category')
     business_list = json.loads(r.text)
     for i in business_list['DATA'][0]['business_category']:
-        if i['business_category']==chapter_name:
+        if business_name.lower() in i['business_category'].lower():
             return i['id']
         
 def send_aisensy_template_message(sender_mobile,sender_name,reciever_mobile,receiver_name,amount):
@@ -332,6 +332,7 @@ def send_thank_you_slip(sender_mobile,sender_name,sender_user_id,reciever_mobile
 
 def post_sell_enquiry_in_db(chapter_id,business_id,user_id,message):
     
+    print('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
     resp = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
 
     resp = json.loads(resp.text)
@@ -487,7 +488,7 @@ def results():
         
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         
-        text = post_sell_enquiry_in_db(chapter_id,business_id,user_id,message)
+        text = post_sell_enquiry_in_db(chapter_id,business_id,user_id,selling_message)
         return return_text_and_suggestion_chip(text,['Main Menu'])
         
         
