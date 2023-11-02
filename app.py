@@ -286,6 +286,14 @@ def get_chapter_id_from_name(chapter_name):
         if i['name']==chapter_name:
             return i['id']
         
+
+def get_business_id_from_name(chapter_name):
+    r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=business_category')
+    business_list = json.loads(r.text)
+    for i in business_list['DATA'][0]['business_category']:
+        if i['business_category']==chapter_name:
+            return i['id']
+        
 def send_aisensy_template_message(sender_mobile,sender_name,reciever_mobile,receiver_name,amount):
     url = "https://backend.aisensy.com/campaign/t1/api"
 
@@ -321,6 +329,14 @@ def send_thank_you_slip(sender_mobile,sender_name,sender_user_id,reciever_mobile
     else:
         return 'System error'
         
+
+def post_sell_enquiry_in_db(chapter_id,business_id,user_id,message):
+    
+    resp = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
+
+    resp = json.loads(resp.text)
+    
+    return resp['DATA'][0]['msg']
         
     
         
@@ -459,6 +475,21 @@ def results():
                     "languageCode": "en-US"
                   }
                 } 
+        
+        
+    if intent_name == "Sell Enquiry":
+        chapter_name = req['queryResult']['parameters']['chapter_name']
+        business_name = req['queryResult']['parameters']['business_name']
+        selling_message = req['queryResult']['parameters']['sell_message']
+        
+        chapter_id = get_chapter_id_from_name(chapter_name)
+        business_id = get_business_id_from_name(business_name)
+        
+        response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
+        
+        text = post_sell_enquiry_in_db(chapter_id,business_id,user_id,message)
+        return return_text_and_suggestion_chip(text,['Main Menu'])
+        
         
 @app.route('/api/', methods=['GET', 'POST'])
 def webhook():
