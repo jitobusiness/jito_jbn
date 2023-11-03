@@ -331,12 +331,14 @@ def send_thank_you_slip(sender_mobile,sender_name,sender_user_id,reciever_mobile
         
 
 def post_sell_enquiry_in_db(chapter_id,business_id,user_id,message):
-    
+    print('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'&business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
     resp = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'&business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
 
     resp = json.loads(resp.text)
+    response = resp['DATA'][0]['msg']
+    whatsapp_group_names = "\n".join(resp['DATA'][0]['whatsapp_group_name'])
     
-    return resp['DATA'][0]['msg']
+    return response,whatsapp_group_names
         
     
         
@@ -487,7 +489,9 @@ def results():
         
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         
-        text = post_sell_enquiry_in_db(chapter_id,business_id,user_id,selling_message)
+        response,whatsapp_group_names = post_sell_enquiry_in_db(chapter_id,business_id,user_id,selling_message)
+        
+        text = response+"\n\nYour message has been posted on the following JBN Groups:\n\n"+whatsapp_group_names
         return return_text_and_suggestion_chip(text,['Main Menu'])
         
         
