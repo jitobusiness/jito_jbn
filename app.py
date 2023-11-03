@@ -332,8 +332,7 @@ def send_thank_you_slip(sender_mobile,sender_name,sender_user_id,reciever_mobile
 
 def post_sell_enquiry_in_db(chapter_id,business_id,user_id,message):
     
-    print('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
-    resp = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
+    resp = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'&business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
 
     resp = json.loads(resp.text)
     
