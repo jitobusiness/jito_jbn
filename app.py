@@ -177,6 +177,11 @@ def return_text_and_suggestion_chip_with_context(text,suggestions,context_sessio
     ],}
 
 def return_text_with_context(text,context_session,context_parameter_name,context_value):
+    
+    parameters = {}
+    for param,value in zip(context_parameter_name,context_value):
+        parameters[param+".original"] = value
+        parameters[param] = value
 
     return {"fulfillmentMessages": [
       {
@@ -201,10 +206,7 @@ def return_text_with_context(text,context_session,context_parameter_name,context
       {
         "name": context_session+"/my_context",
         "lifespanCount": 25,
-        "parameters": {
-          context_parameter_name+".original":context_value,
-          context_parameter_name:context_value
-        }
+        "parameters": parameters
       }
     ],}
     
@@ -331,12 +333,14 @@ def send_thank_you_slip(sender_mobile,sender_name,sender_user_id,reciever_mobile
         
 
 def post_sell_enquiry_in_db(chapter_id,business_id,user_id,message):
-    print('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'&business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
     resp = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=member_sell_bot&jito_chapter_id='+str(chapter_id)+'&business_category_id='+str(business_id)+'&user_id='+str(user_id)+'&message='+str(message))
 
     resp = json.loads(resp.text)
     response = resp['DATA'][0]['msg']
-    whatsapp_group_names = "\n".join(resp['DATA'][0]['whatsapp_group_name'])
+    try:
+        whatsapp_group_names = "\n".join(resp['DATA'][0]['whatsapp_group_name'])
+    except:
+        whatsapp_group_names = "NA"
     
     return response,whatsapp_group_names
         
@@ -480,18 +484,44 @@ def results():
         
         
     if intent_name == "Sell Enquiry":
-        chapter_name = req['queryResult']['parameters']['chapter_name']
-        business_name = req['queryResult']['parameters']['business_name']
-        selling_message = req['queryResult']['parameters']['sell_message']
         
-        chapter_id = get_chapter_id_from_name(chapter_name)
-        business_id = get_business_id_from_name(business_name)
+        context_session = re.findall("\'name\':\s\'(.*?)\/contexts",str(req))[0]+"/contexts"
+        
+        if len(req['queryResult']['parameters']['chapter_name'])<1:
+            return return_only_text("Please tell me the *Chapter Name* where you want to sell your products.")
+        
+        if len(req['queryResult']['parameters']['business_name'])<1:
+            chapter_name = req['queryResult']['parameters']['chapter_name']
+            chapter_id = get_chapter_id_from_name(chapter_name)
+            
+            context_parameter_name = ['chapter_id']
+            context_value = [chapter_id]
+            
+            text = "Please tell me *1 Keyword* that represents your business."
+            return return_text_with_context(text,context_session,context_parameter_name,context_value)
+            
+        if len(req['queryResult']['parameters']['sell_message'])<1:
+            business_name = req['queryResult']['parameters']['business_name']
+            
+            business_id = get_business_id_from_name(business_name)
+            
+            context_parameter_name = ['business_id']
+            context_value = [business_id]
+            text = "Please write your sell message."
+            return return_text_with_context(text,context_session,context_parameter_name,context_value)
+        
+        selling_message = req['queryResult']['parameters']['sell_message']
+        chapter_id = req['queryResult']['outputContexts'][0]['parameters']['chapter_id']
+        business_id = req['queryResult']['outputContexts'][0]['parameters']['business_id']
         
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         
         response,whatsapp_group_names = post_sell_enquiry_in_db(chapter_id,business_id,user_id,selling_message)
         
-        text = response+"\n\nYour message has been posted on the following JBN Groups:\n\n"+whatsapp_group_names
+        if len(whatsapp_group_names)>3:
+            text = response+"\n\nYour message has been *posted on the following JBN Groups*:\n\n"+whatsapp_group_names
+        else:
+            text = response
         return return_text_and_suggestion_chip(text,['Main Menu'])
         
         
