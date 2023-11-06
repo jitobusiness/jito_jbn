@@ -497,7 +497,7 @@ def results():
             context_parameter_name = ['chapter_id']
             context_value = [chapter_id]
             
-            text = "Please tell me *1 Keyword* that represents your business."
+            text = "Please tell me the *group name* in which you want to post your enquiry."
             return return_text_with_context(text,context_session,context_parameter_name,context_value)
             
         if len(req['queryResult']['parameters']['sell_message'])<1:
