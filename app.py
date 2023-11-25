@@ -284,10 +284,20 @@ def check_registered_user(mobile_number):
 def get_chapter_id_from_name(chapter_name):
     r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=jito_chapter_filter')
     chapters_list = json.loads(r.text)
+    all_ids = []
+    for i in chapters_list['DATA'][0]['jito_chapter']:
+        if chapter_name.lower() in i['name'].lower():
+            all_ids.append(i['id'])
+            
+    return ",".join(all_ids)
+
+def get_chapter_id_from_name_sell(chapter_name):
+    r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=jito_chapter_filter')
+    chapters_list = json.loads(r.text)
+
     for i in chapters_list['DATA'][0]['jito_chapter']:
         if chapter_name.lower() in i['name'].lower():
             return i['id']
-        
 
 def get_business_id_from_name(business_name):
     r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=business_category')
@@ -373,7 +383,7 @@ def results():
         keyword = req['queryResult']['parameters']['keyword']
         chapter_name = req['queryResult']['parameters']['chapter_name']
         
-        if chapter_name.lower().strip() not in city:
+        if chapter_name.lower().strip() not in " ".join(city):
             return {
                   "followupEventInput": {
                     "name": "incorrect_city_entered",
@@ -383,6 +393,7 @@ def results():
         
         
         chapter_id = get_chapter_id_from_name(chapter_name)
+        print(chapter_id)
         keyword = keyword.replace(" ","%20")
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         
@@ -492,12 +503,18 @@ def results():
         
         if len(req['queryResult']['parameters']['business_name'])<1:
             chapter_name = req['queryResult']['parameters']['chapter_name']
-            chapter_id = get_chapter_id_from_name(chapter_name)
+            chapter_id = get_chapter_id_from_name_sell(chapter_name)
             
             context_parameter_name = ['chapter_id']
             context_value = [chapter_id]
             
-            text = "Please tell me the *industry group name* in which you want to post your enquiry."
+            all_categories = []
+            r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=business_category')
+            business_list = json.loads(r.text)
+            for i in business_list['DATA'][0]['business_category']:
+                all_categories.append("*"+i['id']+".* "+i['business_category'])
+            
+            text = "Please tell me the *Business Category* in which you want to post your enquiry. Please type only one number.\n\n"+"\n".join(all_categories)
             return return_text_with_context(text,context_session,context_parameter_name,context_value)
             
         if len(req['queryResult']['parameters']['sell_message'])<1:
