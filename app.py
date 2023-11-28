@@ -368,7 +368,7 @@ def results():
     if intent_name=="Default Welcome Intent":
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         if response == 'User is registered in our database':
-            text = "Welcome to JBN, the Automated Business Connector for economic empowerment. Please choose from the following options or simply type your inquiry:\n1. Your Ask\n2. Thank You Slip\n3. About JBN\n4. Setu Settings\n5. Sell Enquiry\n6. Help"
+            text = f"Jai Jinendra, *{user_name}!* 👋🏻\n\nWelcome to Pagariya JBN Setu 2.0, the Automated Business Connector dedicated to fostering economic empowerment.\n\nKindly select an option by typing the corresponding number or directly write your buy enquiry.\n\n1. Buy Enquiry (Your Ask)\n2. Sell Enquiry (Self-Promotion)\n3. Thank You Slip\n4. About Pagariya JBN\n5. Settings\n6. Help"
             return return_text_and_suggestion_chip(text,['Main Menu'])
         else:
             return {
@@ -498,12 +498,19 @@ def results():
         
         context_session = re.findall("\'name\':\s\'(.*?)\/contexts",str(req))[0]+"/contexts"
         
-        if len(req['queryResult']['parameters']['chapter_name'])<1:
-            return return_only_text("Please tell me the *Chapter Name* where you want to sell your products.")
+        if len(str(req['queryResult']['parameters']['chapter_name']))<1:
+            r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=jito_chapter_with_whatsaapp_group_filter')
+            chapters_list = json.loads(r.text)
+            chapters_list = chapters_list['DATA'][0]['jito_chapter']
+            all_chapters = []
+            for chapter in chapters_list:
+                all_chapters.append("*"+chapter['id']+"*: "+chapter['name'])
+
+            
+            return return_only_text("Please tell me the *Chapter Name* where you want to sell your products. Please type one number only.\n\n"+"\n".join(all_chapters))
         
-        if len(req['queryResult']['parameters']['business_name'])<1:
-            chapter_name = req['queryResult']['parameters']['chapter_name']
-            chapter_id = get_chapter_id_from_name_sell(chapter_name)
+        if len(str(req['queryResult']['parameters']['business_name']))<1:
+            chapter_id = str(int(req['queryResult']['parameters']['chapter_name']))
             
             context_parameter_name = ['chapter_id']
             context_value = [chapter_id]
@@ -518,10 +525,8 @@ def results():
             return return_text_with_context(text,context_session,context_parameter_name,context_value)
             
         if len(req['queryResult']['parameters']['sell_message'])<1:
-            business_name = req['queryResult']['parameters']['business_name']
-            
-            business_id = get_business_id_from_name(business_name)
-            
+            business_id = str(int(req['queryResult']['parameters']['business_name']))
+                    
             context_parameter_name = ['business_id']
             context_value = [business_id]
             text = "Please write your sell message."
@@ -532,7 +537,7 @@ def results():
         business_id = req['queryResult']['outputContexts'][0]['parameters']['business_id']
         
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
-        
+                
         response,whatsapp_group_names = post_sell_enquiry_in_db(chapter_id,business_id,user_id,selling_message)
         
         if len(whatsapp_group_names)>3:
