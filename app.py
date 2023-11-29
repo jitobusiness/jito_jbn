@@ -353,6 +353,16 @@ def post_sell_enquiry_in_db(chapter_id,business_id,user_id,message):
         whatsapp_group_names = "NA"
     
     return response,whatsapp_group_names
+
+
+
+def get_chapter_id_from_sr_num(num):
+    r = requests.get('https://jitojbnapp.com/WebServices/WS.php?type=jito_chapter_with_whatsaapp_group_filter')
+    chapters_list = json.loads(r.text)
+    chapters_list = chapters_list['DATA'][0]['jito_chapter']
+    for data in chapters_list:
+        if str(data['sr_no'])==num:
+            return str(data['id'])
         
     
         
@@ -504,13 +514,15 @@ def results():
             chapters_list = chapters_list['DATA'][0]['jito_chapter']
             all_chapters = []
             for chapter in chapters_list:
-                all_chapters.append("*"+chapter['id']+"*: "+chapter['name'])
+                all_chapters.append("*"+str(chapter['sr_no'])+"*: "+chapter['name'])
 
             
             return return_only_text("Please tell me the *Chapter Name* where you want to sell your products. Please type one number only.\n\n"+"\n".join(all_chapters))
         
         if len(str(req['queryResult']['parameters']['business_name']))<1:
             chapter_id = str(int(req['queryResult']['parameters']['chapter_name']))
+            
+            chapter_id = get_chapter_id_from_sr_num(chapter_id)
             
             context_parameter_name = ['chapter_id']
             context_value = [chapter_id]
@@ -551,7 +563,6 @@ def results():
 def webhook():
     # return response
     return make_response(jsonify(results()))
-
 
 if __name__ == '__main__':
     app.run()
