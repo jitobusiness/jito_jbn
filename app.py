@@ -378,7 +378,7 @@ def results():
     if intent_name=="Default Welcome Intent":
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         if response == 'User is registered in our database':
-            text = f"Jai Jinendra, *{user_name}!* 👋🏻\n\nWelcome to Pagariya JBN Setu 2.0, the Automated Business Connector dedicated to fostering economic empowerment.\n\nKindly select an option by typing the corresponding number or directly write your buy enquiry.\n\n1. Buy Enquiry (Your Ask)\n2. Sell Enquiry (Self-Promotion)\n3. Thank You Slip\n4. About Pagariya JBN\n5. Settings\n6. Help"
+            text = f"Jai Jinendra, *{user_name}!* 👋🏻\n\nWelcome to Pagariya JBN Setu 2.0, the Automated Business Connector dedicated to fostering economic empowerment.\n\nKindly select an option by typing the corresponding number or directly write your buy enquiry.\n\n1. Buy Enquiry (Your Ask)\n2. Business Booster\n3. Thank You Slip\n4. About Pagariya JBN\n5. Settings\n6. Help"
             return return_text_and_suggestion_chip(text,['Main Menu'])
         else:
             return {
@@ -517,7 +517,7 @@ def results():
                 all_chapters.append("*"+str(chapter['sr_no'])+"*: "+chapter['name'])
 
             
-            return return_only_text("Please tell me the *Chapter Name* where you want to sell your products. Please type one number only.\n\n"+"\n".join(all_chapters))
+            return return_only_text("Type the number from the below *Chapter List* in which you want to boost your business. Please type one number only.\n\n"+"\n".join(all_chapters))
         
         if len(str(req['queryResult']['parameters']['business_name']))<1:
             chapter_id = str(int(req['queryResult']['parameters']['chapter_name']))
@@ -533,7 +533,7 @@ def results():
             for i in business_list['DATA'][0]['business_category']:
                 all_categories.append("*"+i['id']+".* "+i['business_category'])
             
-            text = "Please tell me the *Business Category* in which you want to post your enquiry. Please type only one number.\n\n"+"\n".join(all_categories)
+            text = "Type the number from the below *Industry Group* list in which you want to boost your business. Please type only one number.\n\n"+"\n".join(all_categories)
             return return_text_with_context(text,context_session,context_parameter_name,context_value)
             
         if len(req['queryResult']['parameters']['sell_message'])<1:
@@ -541,7 +541,7 @@ def results():
                     
             context_parameter_name = ['business_id']
             context_value = [business_id]
-            text = "Please write your sell message."
+            text = "Type the message to post in the selected JITO chapter & industry group."
             return return_text_with_context(text,context_session,context_parameter_name,context_value)
         
         selling_message = req['queryResult']['parameters']['sell_message']
