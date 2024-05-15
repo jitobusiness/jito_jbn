@@ -364,6 +364,11 @@ def get_chapter_id_from_sr_num(num):
         if str(data['sr_no'])==num:
             return str(data['id'])
         
+        
+def change_setu_settings(user_id,option_selected):
+    r = requests.get("https://jitojbnapp.com/WebServices/WS.php?type=setu_setting_add&user_id="+str(user_id)+"&setu_type="+option_selected)
+    return r
+        
     
         
 def results():
@@ -476,6 +481,7 @@ def results():
     if intent_name == "Thank you Slip":
         
         response,sender_user_name,sender_user_id = check_registered_user(whatsapp_mobile_number)
+        
         if response == 'User is registered in our database':
             
             sender_mobile = whatsapp_mobile_number
@@ -502,6 +508,15 @@ def results():
                     "languageCode": "en-US"
                   }
                 } 
+        
+        
+    if intent_name == "Setu Settings":
+        settings_option = str(req['queryResult']['parameters']['setu_settings'])
+        response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
+        change_setu_settings(user_id,option_selected)
+        
+        text = "Your settings have been changed successfully."
+        return return_text_and_suggestion_chip(text,['Main Menu'])
         
         
     if intent_name == "Sell Enquiry":
