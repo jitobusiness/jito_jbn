@@ -511,7 +511,7 @@ def results():
         
         
     if intent_name == "Setu Settings":
-        settings_option = str(req['queryResult']['parameters']['setu_settings'])
+        option_selected = str(req['queryResult']['parameters']['setu_settings'])
         response,user_name,user_id = check_registered_user(whatsapp_mobile_number)
         change_setu_settings(user_id,option_selected)
         
